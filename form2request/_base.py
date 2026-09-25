@@ -31,12 +31,12 @@ FormdataType: TypeAlias = dict[str, FormdataVType] | Iterable[FormdataKVType] | 
 
 
 def _parsel_to_lxml(
-    element: HtmlElement | Selector | SelectorList,
+    element: HtmlElement | Selector | SelectorList[Selector],
 ) -> HtmlElement:
     if isinstance(element, SelectorList):
-        return element[0].root
+        return cast("HtmlElement", element[0].root)
     if isinstance(element, Selector):
-        return element.root
+        return cast("HtmlElement", element.root)
     return element
 
 
@@ -106,12 +106,13 @@ def _method(
 
 
 def _click_element(
-    form: FormElement, click: bool | HtmlElement | Selector | SelectorList | None
+    form: FormElement,
+    click: bool | HtmlElement | Selector | SelectorList[Selector] | None,
 ) -> HtmlElement | None:
     if click is False:
         return None
     if click is None or click is True:
-        clickables = list(
+        clickables: list[HtmlElement] = list(
             form.xpath(
                 'descendant::input[re:test(@type, "^(submit|image)$", "i")]'
                 '|descendant::button[not(@type) or re:test(@type, "^submit$", "i")]',
@@ -240,7 +241,7 @@ class Request:
         )
         return request.prepare()
 
-    def to_scrapy(self, callback: Callable, **kwargs: Any) -> scrapy.Request:
+    def to_scrapy(self, callback: Callable[..., Any], **kwargs: Any) -> scrapy.Request:
         """Convert the request to :class:`scrapy.Request`.
 
         All *kwargs* are passed to :class:`scrapy.Request` as is.
@@ -258,10 +259,10 @@ class Request:
 
 
 def form2request(
-    form: FormElement | Selector | SelectorList,
+    form: FormElement | Selector | SelectorList[Selector],
     data: FormdataType = None,
     *,
-    click: bool | HtmlElement | Selector | SelectorList | None = None,
+    click: bool | HtmlElement | Selector | SelectorList[Selector] | None = None,
     method: None | str = None,
     enctype: None | str = None,
 ) -> Request:
