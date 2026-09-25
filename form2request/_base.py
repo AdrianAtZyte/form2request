@@ -41,7 +41,7 @@ def _parsel_to_lxml(
 
 
 def _enctype(
-    form: FormElement, click_element: HtmlElement | None, enctype: None | str
+    form: FormElement, click_element: HtmlElement | None, enctype: str | None
 ) -> str:
     if enctype:
         enctype = enctype.lower()
@@ -77,7 +77,7 @@ USER = object()
 
 
 def _method(
-    form: FormElement, click_element: HtmlElement | None, method: None | str
+    form: FormElement, click_element: HtmlElement | None, method: str | None
 ) -> str:
     if method:
         method_src = USER
@@ -263,8 +263,8 @@ def form2request(
     data: FormdataType = None,
     *,
     click: bool | HtmlElement | Selector | SelectorList[Selector] | None = None,
-    method: None | str = None,
-    enctype: None | str = None,
+    method: str | None = None,
+    enctype: str | None = None,
 ) -> Request:
     """Return request data for an HTML form submission.
 
