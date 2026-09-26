@@ -67,15 +67,6 @@ exclude_also = [
 
 [tool.mypy]
 strict = true
-allow_any_generics = true
-warn_return_any = false
-
-[[tool.mypy.overrides]]
-module = [
-    "tests.*",
-]
-allow_untyped_defs = true
-check_untyped_defs = true
 
 [tool.ruff.lint]
 extend-select = [

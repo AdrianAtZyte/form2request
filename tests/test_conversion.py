@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from form2request import Request
@@ -7,7 +9,7 @@ scrapy = pytest.importorskip("scrapy")
 requests = pytest.importorskip("requests")
 
 
-def fake_scrapy_callback(self, response):
+def fake_scrapy_callback(self: Any, response: Any) -> None:
     pass
 
 
@@ -138,7 +140,9 @@ def fake_scrapy_callback(self, response):
         ),
     ],
 )
-def test_conversion(request_data, method, kwargs, expected):
+def test_conversion(
+    request_data: Request, method: str, kwargs: dict[str, Any], expected: Any
+) -> None:
     actual = getattr(request_data, f"to_{method}")(**kwargs)
     if method == "poet":
         for field in ("method", "headers", "body"):

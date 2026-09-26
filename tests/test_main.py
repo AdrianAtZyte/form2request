@@ -848,7 +848,12 @@ def _parse_multipart(request: Request) -> list[dict[str, Any]]:
         ),
     ],
 )
-def test_form2request(base_url, html, kwargs, expected):
+def test_form2request(
+    base_url: str,
+    html: bytes,
+    kwargs: dict[str, Any],
+    expected: Request | type[Exception],
+) -> None:
     root = fromstring(html, base_url=base_url)
     form = root.xpath("//form")[0]
     click = kwargs.pop("click", None)
@@ -862,7 +867,7 @@ def test_form2request(base_url, html, kwargs, expected):
             form2request(form, click=click, **kwargs)
 
 
-def test_form2request_no_base_url():
+def test_form2request_no_base_url() -> None:
     html = "<form></form>"
     root = fromstring(html)
     form = root.xpath("//form")[0]
@@ -870,7 +875,7 @@ def test_form2request_no_base_url():
         form2request(form)
 
 
-def test_form2request_parsel():
+def test_form2request_parsel() -> None:
     html = b"""<form><input type="submit" name="foo" value="bar" />
     <input type="submit" name="foo" value="baz" /></form>"""
     selector = Selector(body=html, base_url="https://example.com")
@@ -898,7 +903,7 @@ def _multipart_request(html: bytes, **kwargs: Any) -> Request:
     return form2request(form, **kwargs)
 
 
-def test_multipart_empty_form():
+def test_multipart_empty_form() -> None:
     request = _multipart_request(
         b'<form enctype="multipart/form-data" method="post"></form>'
     )
@@ -909,7 +914,7 @@ def test_multipart_empty_form():
     assert _parse_multipart(request) == []
 
 
-def test_multipart_text_fields():
+def test_multipart_text_fields() -> None:
     request = _multipart_request(
         b"""<form enctype="multipart/form-data" method="post">
         <input name="a" value="hello" />
@@ -933,7 +938,7 @@ def test_multipart_text_fields():
     ]
 
 
-def test_multipart_file_field():
+def test_multipart_file_field() -> None:
     request = _multipart_request(
         b"""<form enctype="multipart/form-data" method="post">
         <input type="file" name="upload" />
@@ -952,7 +957,7 @@ def test_multipart_file_field():
     assert parts[0]["content"] == b"file content"
 
 
-def test_multipart_file_field_default_content_type():
+def test_multipart_file_field_default_content_type() -> None:
     request = _multipart_request(
         b'<form enctype="multipart/form-data" method="post"></form>',
         data={"f": FileField(content=b"\x00\x01\x02", filename="data.bin")},
@@ -962,7 +967,7 @@ def test_multipart_file_field_default_content_type():
     assert parts[0]["content"] == b"\x00\x01\x02"
 
 
-def test_multipart_mixed_fields():
+def test_multipart_mixed_fields() -> None:
     request = _multipart_request(
         b"""<form enctype="multipart/form-data" method="post">
         <input name="note" value="hi" />
@@ -975,7 +980,7 @@ def test_multipart_mixed_fields():
     assert names == {"note", "attachment"}
 
 
-def test_multipart_formenctype_button():
+def test_multipart_formenctype_button() -> None:
     # formenctype="multipart/form-data" on the submit button triggers multipart.
     request = _multipart_request(
         b"""<form enctype="application/x-www-form-urlencoded" method="post">
@@ -990,7 +995,7 @@ def test_multipart_formenctype_button():
     assert parts[0]["content"] == b"y"
 
 
-def test_multipart_formenctype_case_insensitive():
+def test_multipart_formenctype_case_insensitive() -> None:
     request = _multipart_request(
         b"""<form enctype="application/x-www-form-urlencoded" method="post">
         <input type="submit" formenctype="MuLtIpArT/fOrM-dAtA" />
@@ -1000,7 +1005,7 @@ def test_multipart_formenctype_case_insensitive():
     assert ct.startswith("multipart/form-data; boundary=")
 
 
-def test_multipart_enctype_override():
+def test_multipart_enctype_override() -> None:
     # enctype parameter override to multipart/form-data.
     request = _multipart_request(
         b'<form method="post"><input name="k" value="v" /></form>',
